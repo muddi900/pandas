@@ -1238,9 +1238,16 @@ class FrameParser(Parser):
         orient = self.orient
 
         if orient == "columns":
+            read_dict = loads(json, precise_float=self.precise_float)
             self.obj = DataFrame(
-                loads(json, precise_float=self.precise_float), dtype=None
+                read_dict,
+                dtype=None,
+                columns=dedup_names(
+                    names=read_dict.keys(),
+                    is_potential_multi_index=False,
+                ),
             )
+
         elif orient == "split":
             decoded = {
                 str(k): v
@@ -1260,8 +1267,9 @@ class FrameParser(Parser):
         elif orient == "table":
             self.obj = parse_table_schema(json, precise_float=self.precise_float)
         else:
+            read_dict = loads(json, precise_float=self.precise_float)
             self.obj = DataFrame(
-                loads(json, precise_float=self.precise_float), dtype=None
+                read_dict, dtype=None, columns=dedup_names(read_dict.keys())
             )
 
     def _process_converter(self, f, filt=None) -> None:
